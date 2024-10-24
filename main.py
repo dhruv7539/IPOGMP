@@ -1,6 +1,18 @@
 import requests
 from bs4 import BeautifulSoup
 
+from flask import Flask, send_from_directory
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+if __name__ == "__main__":
+    app.run(debug=True, host='0.0.0.0', port=5000)
+
+
 # Function to clean IPO names based on known endings (IPO or SME)
 def clean_ipo_name(name):
     if "IPO" in name:
