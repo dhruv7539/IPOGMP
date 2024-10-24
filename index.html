@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>IPO Grey Market Premium Dashboard</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&amp;family=Roboto:wght@400;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary-bg: rgba(255, 255, 255, 0.25);
+            --primary-border: rgba(255, 255, 255, 0.18);
+            --text-color: #333;
+            --highlight-color-green: #27ae60;
+            --highlight-color-red: #e74c3c;
+            --neutral-color: #95a5a6;
+            --status-upcoming: #f39c12;
+            --status-open: #3498db;
+            --status-closed: #e74c3c;
+            --secondary-text-color: #555;
+            --hover-bg: rgba(255, 255, 255, 0.15);
+            --filter-bg: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            --filter-bg-hover: linear-gradient(135deg, #dee2e6 0%, #b4d0d9 100%);
+            --card-bg-mint: #E0F7FA;
+            --background-color: #FAF3E0;
+            /* Light beige for the website background */
+            --dark-card-bg: #2E2E2E;
+            /* Dark mode card background */
+            --dark-card-border: #555;
+            /* Dark mode card border color */
+            --dark-mode-bg: #1F1F1F;
+            /* Dark mode background color */
+            --dark-mode-text: #FFF;
+            /* Dark mode text color */
+        }
+
+        /* Dark mode variables */
+        body.dark-mode {
+            --primary-bg: var(--dark-card-bg);
+            --primary-border: var(--dark-card-border);
+            --text-color: var(--dark-mode-text);
+            --highlight-color-green: #00cec9;
+            --highlight-color-red: #e74c3c;
+            --hover-bg: rgba(255, 255, 255, 0.1);
+            background-color: var(--dark-mode-bg);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            /* Light beige background */
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 2.5rem;
+        }
+
+        .toggle-mode {
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background-color: #2c3e50;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-mode:hover {
+            background-color: #1abc9c;
+        }
+
+        .search-bar {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .search-bar input {
+            width: 300px;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            transition: border 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .filter-buttons,
+        .sort-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-button {
+            padding: 10px 20px;
+            background: var(--filter-bg);
+            color: #333;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-button.active {
+            background: var(--filter-bg-hover);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .filter-button.active,
+        .sort-button.active {
+            background-color: #3498db;
+            /* Blue highlight for active buttons */
+            color: white;
+        }
+
+
+        .filter-button:hover {
+            background: var(--filter-bg-hover);
+            transform: translateY(-2px);
+        }
+
+        .sort-button {
+            padding: 10px 20px;
+            background: #e9ecef;
+            color: #333;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .sort-button.active {
+            background: #ced4da;
+        }
+
+        .sort-button:hover {
+            background: #adb5bd;
+            transform: translateY(-2px);
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg-mint);
+            /* Soft pastel background */
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--primary-border);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            position: relative;
+        }
+
+        body.dark-mode .card {
+            background-color: var(--dark-card-bg);
+            /* Dark mode card background */
+            border-color: var(--dark-card-border);
+            /* Dark mode card border */
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .card .gmp {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--highlight-color-green);
+            margin-bottom: 15px;
+        }
+
+        .card .status {
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            color: white;
+            margin-top: 10px;
+        }
+
+        /* Styling for Open IPOs */
+        .status.pen {
+            background-color: var(--highlight-color-green);
+            /* Green for open */
+            color: white;
+        }
+
+        /* Styling for Closed IPOs */
+        .status.los {
+            background-color: var(--highlight-color-red);
+            /* Red for closed */
+            color: white;
+        }
+
+        /* Styling for Closing Today IPOs */
+        .status.los {
+            background-color: #f39c12;
+            /* Orange for closing today */
+            color: white;
+        }
+
+        /* Styling for Upcoming IPOs */
+        .status.pco {
+            background-color: #3498db;
+            /* Blue for upcoming */
+            color: white;
+        }
+
+        /* Handle malformed classes like [ema] */
+        .status.ema {
+            background-color: #9b59b6;
+            /* Purple for fallback case */
+            color: white;
+        }
+
+
+        .card .details {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--secondary-text-color);
+        }
+
+        .progress-bar-container {
+            position: relative;
+            background-color: #ecf0f1;
+            height: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            background-color: var(--highlight-color-green);
+            height: 100%;
+            transition: width 0.6s ease;
+        }
+
+        .card .listing-percentage {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--highlight-color-green);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .details p {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .details p span {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+    </style>
+    <!-- Add icons from FontAwesome for intuitive filter buttons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>IPO Grey Market Premium</h1>
+            <div class="toggle-mode" onclick="toggleDarkMode()">🌙 Dark Mode</div>
+        </header>
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input id="search-input" oninput="filterByName()" placeholder="Search IPO by name..." type="text" />
+        </div>
+        <!-- Filter Buttons -->
+        <div class="filter-buttons">
+            <div class="filter-buttons">
+                <button class="filter-button active" id="all-btn" onclick="filterCards('all')">
+                    <i class="fas fa-th-large"></i> All
+                </button>
+                <button class="filter-button" id="open-btn" onclick="filterCards('open')">
+                    <i class="fas fa-door-open"></i> Open
+                </button>
+                <button class="filter-button" id="closed-btn" onclick="filterCards('closed')">
+                    <i class="fas fa-lock"></i> Closed
+                </button>
+                <button class="filter-button" id="upcoming-btn" onclick="filterCards('upcoming')">
+                    <i class="fas fa-calendar-day"></i> Upcoming
+                </button>
+                <!-- New Filter Buttons -->
+                <button class="filter-button" id="sme-btn" onclick="filterCards('sme')">
+                    <i class="fas fa-building"></i> SME IPO
+                </button>
+                <button class="filter-button" id="main-btn" onclick="filterCards('main')">
+                    <i class="fas fa-industry"></i> Main IPO
+                </button>
+                <button class="filter-button" id="reset-btn" onclick="resetFilters()">
+                    <i class="fas fa-undo"></i> Reset Filters
+                </button>
+            </div>
+        </div>
+        <!-- Sort Buttons -->
+        <div class="sort-buttons">
+            <button class="sort-button" id="gmp-btn" onclick="sortCards('gmp')">Sort by GMP <span
+                    class="arrow">↓</span></button>
+            <button class="sort-button" id="price-btn" onclick="sortCards('price')">Sort by Price <span
+                    class="arrow">↓</span></button>
+            <button class="sort-button" id="percentage-btn" onclick="sortCards('percentage')">Sort by Est Listing %
+                <span class="arrow">↓</span></button>
+        </div>
+        <div class="cards" id="cards-container">
+            <!-- IPO Cards Section -->
+            <div class="card" data-gmp="60" data-percentage="12.96" data-price="463" data-status="upcoming">
+                <h2>Afcons Infrastructure IPO</h2>
+                <div class="gmp">GMP: ₹60</div>
+                <div class="listing-percentage">12.96%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 12.96%;"></div>
+                </div>
+                <div class="status pco">Upcoming</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹463</span></p>
+                    <p><span>Est Listing:</span><span>523 (12.96%)</span></p>
+                    <p><span>Open:</span><span>25-Oct</span></p>
+                    <p><span>Close:</span><span>29-Oct</span></p>
+                    <p><span>Listing Date:</span><span>4-Nov</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="51" data-percentage="30.36" data-price="168" data-status="open (sub:1.36x)">
+                <h2>Usha Financial Services NSE SME</h2>
+                <div class="gmp">GMP: ₹51</div>
+                <div class="listing-percentage">30.36%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 30.36%;"></div>
+                </div>
+                <div class="status pen">Open (Sub:1.36x)</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹168</span></p>
+                    <p><span>Est Listing:</span><span>219 (30.36%)</span></p>
+                    <p><span>Open:</span><span>24-Oct</span></p>
+                    <p><span>Close:</span><span>28-Oct</span></p>
+                    <p><span>Listing Date:</span><span>31-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="15" data-percentage="4.26" data-price="352" data-status="open (sub:0.56x)">
+                <h2>Godavari Biorefineries IPO</h2>
+                <div class="gmp">GMP: ₹15</div>
+                <div class="listing-percentage">4.26%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 4.26%;"></div>
+                </div>
+                <div class="status pen">Open (Sub:0.56x)</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹352</span></p>
+                    <p><span>Est Listing:</span><span>367 (4.26%)</span></p>
+                    <p><span>Open:</span><span>23-Oct</span></p>
+                    <p><span>Close:</span><span>25-Oct</span></p>
+                    <p><span>Listing Date:</span><span>30-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="20" data-percentage="33.90" data-price="59" data-status="close (sub:83.7x)">
+                <h2>United Heat Transfer NSE SME</h2>
+                <div class="gmp">GMP: ₹20</div>
+                <div class="listing-percentage">33.90%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 33.90%;"></div>
+                </div>
+                <div class="status los">Close (Sub:83.7x)</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹59</span></p>
+                    <p><span>Est Listing:</span><span>79 (33.90%)</span></p>
+                    <p><span>Open:</span><span>22-Oct</span></p>
+                    <p><span>Close:</span><span>24-Oct</span></p>
+                    <p><span>Listing Date:</span><span>29-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="11" data-percentage="11.00" data-price="100" data-status="close (sub:16.56x)">
+                <h2>OBSC Perfection NSE SME</h2>
+                <div class="gmp">GMP: ₹11</div>
+                <div class="listing-percentage">11.00%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 11.00%;"></div>
+                </div>
+                <div class="status los">Close (Sub:16.56x)</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹100</span></p>
+                    <p><span>Est Listing:</span><span>111 (11.00%)</span></p>
+                    <p><span>Open:</span><span>22-Oct</span></p>
+                    <p><span>Close:</span><span>24-Oct</span></p>
+                    <p><span>Listing Date:</span><span>29-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="300" data-percentage="78.95" data-price="380" data-status="close (sub:126.65x)">
+                <h2>Danish Power NSE SME</h2>
+                <div class="gmp">GMP: ₹300</div>
+                <div class="listing-percentage">78.95%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 78.95%;"></div>
+                </div>
+                <div class="status los">Close (Sub:126.65x)</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹380</span></p>
+                    <p><span>Est Listing:</span><span>680 (78.95%)</span></p>
+                    <p><span>Open:</span><span>22-Oct</span></p>
+                    <p><span>Close:</span><span>24-Oct</span></p>
+                    <p><span>Listing Date:</span><span>29-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="1590" data-percentage="105.79" data-price="1503"
+                data-status="close (sub:79.44x)">
+                <h2>Waaree Energies IPO</h2>
+                <div class="gmp">GMP: ₹1590</div>
+                <div class="listing-percentage">105.79%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 105.79%;"></div>
+                </div>
+                <div class="status los">Close (Sub:79.44x)</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹1503</span></p>
+                    <p><span>Est Listing:</span><span>3093 (105.79%)</span></p>
+                    <p><span>Open:</span><span>21-Oct</span></p>
+                    <p><span>Close:</span><span>23-Oct</span></p>
+                    <p><span>Listing Date:</span><span>28-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="50" data-percentage="24.63" data-price="203" data-status="close (sub:41.54x)">
+                <h2>Deepak Builders Engineers IPO</h2>
+                <div class="gmp">GMP: ₹50</div>
+                <div class="listing-percentage">24.63%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 24.63%;"></div>
+                </div>
+                <div class="status los">Close (Sub:41.54x)</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹203</span></p>
+                    <p><span>Est Listing:</span><span>253 (24.63%)</span></p>
+                    <p><span>Open:</span><span>21-Oct</span></p>
+                    <p><span>Close:</span><span>23-Oct</span></p>
+                    <p><span>Listing Date:</span><span>28-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="9" data-percentage="18.37" data-price="49" data-status="close (sub:38.87x)">
+                <h2>Premium Plast NSE SME</h2>
+                <div class="gmp">GMP: ₹9</div>
+                <div class="listing-percentage">18.37%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 18.37%;"></div>
+                </div>
+                <div class="status los">Close (Sub:38.87x)</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹49</span></p>
+                    <p><span>Est Listing:</span><span>58 (18.37%)</span></p>
+                    <p><span>Open:</span><span>21-Oct</span></p>
+                    <p><span>Close:</span><span>23-Oct</span></p>
+                    <p><span>Listing Date:</span><span>28-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="--" data-percentage="0.00" data-price="70" data-status="close (sub:345.65x)">
+                <h2>Trafiksol ITS Technologies BSE SME</h2>
+                <div class="gmp">GMP: ₹--</div>
+                <div class="listing-percentage">0.00%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 0.00%;"></div>
+                </div>
+                <div class="status los">Close (Sub:345.65x)</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹70</span></p>
+                    <p><span>Est Listing:</span><span>70 (0.00%)</span></p>
+                    <p><span>Open:</span><span>10-Sep</span></p>
+                    <p><span>Close:</span><span>12-Sep</span></p>
+                    <p><span>Listing Date:</span><span></span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="50" data-percentage="43.10" data-price="116"
+                data-status="L@ (16.38%) ((sub:236.8x))">
+                <h2>Freshara Agro Exports NSE SME</h2>
+                <div class="gmp">GMP: ₹50</div>
+                <div class="listing-percentage">43.10%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 43.10%;"></div>
+                </div>
+                <div class="status ema">L@ (16.38%) ((Sub:236.8x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹116</span></p>
+                    <p><span>Est Listing:</span><span>166 (43.10%)</span></p>
+                    <p><span>Open:</span><span>17-Oct</span></p>
+                    <p><span>Close:</span><span>21-Oct</span></p>
+                    <p><span>Listing Date:</span><span>24-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="170" data-percentage="94.44" data-price="180"
+                data-status="L@ (90.00%) ((sub:573.36x))">
+                <h2>Lakshya Powertech NSE SME</h2>
+                <div class="gmp">GMP: ₹170</div>
+                <div class="listing-percentage">94.44%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 94.44%;"></div>
+                </div>
+                <div class="status ema">L@ (90.00%) ((Sub:573.36x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹180</span></p>
+                    <p><span>Est Listing:</span><span>350 (94.44%)</span></p>
+                    <p><span>Open:</span><span>16-Oct</span></p>
+                    <p><span>Close:</span><span>18-Oct</span></p>
+                    <p><span>Listing Date:</span><span>23-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="62" data-percentage="3.16" data-price="1960"
+                data-status="L@ (-1.33%) ((sub:2.37x))">
+                <h2>Hyundai Motor IPO</h2>
+                <div class="gmp">GMP: ₹62</div>
+                <div class="listing-percentage">3.16%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 3.16%;"></div>
+                </div>
+                <div class="status ema">L@ (-1.33%) ((Sub:2.37x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹1960</span></p>
+                    <p><span>Est Listing:</span><span>2022 (3.16%)</span></p>
+                    <p><span>Open:</span><span>15-Oct</span></p>
+                    <p><span>Close:</span><span>17-Oct</span></p>
+                    <p><span>Listing Date:</span><span>22-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="4" data-percentage="5.19" data-price="77"
+                data-status="L@ (2.60%) ((sub:218.02x))">
+                <h2>Pranik Logistics NSE SME</h2>
+                <div class="gmp">GMP: ₹4</div>
+                <div class="listing-percentage">5.19%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 5.19%;"></div>
+                </div>
+                <div class="status ema">L@ (2.60%) ((Sub:218.02x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹77</span></p>
+                    <p><span>Est Listing:</span><span>81 (5.19%)</span></p>
+                    <p><span>Open:</span><span>10-Oct</span></p>
+                    <p><span>Close:</span><span>14-Oct</span></p>
+                    <p><span>Listing Date:</span><span>17-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="65" data-percentage="39.16" data-price="166"
+                data-status="L@ (43.98%) ((sub:156.55x))">
+                <h2>Shiv Texchem BSE SME</h2>
+                <div class="gmp">GMP: ₹65</div>
+                <div class="listing-percentage">39.16%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 39.16%;"></div>
+                </div>
+                <div class="status ema">L@ (43.98%) ((Sub:156.55x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹166</span></p>
+                    <p><span>Est Listing:</span><span>231 (39.16%)</span></p>
+                    <p><span>Open:</span><span>8-Oct</span></p>
+                    <p><span>Close:</span><span>10-Oct</span></p>
+                    <p><span>Listing Date:</span><span>15-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="--" data-percentage="0.00" data-price="95"
+                data-status="L@ (10.53%) ((sub:7.55x))">
+                <h2>Garuda Construction and Engineering IPO</h2>
+                <div class="gmp">GMP: ₹--</div>
+                <div class="listing-percentage">0.00%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 0.00%;"></div>
+                </div>
+                <div class="status ema">L@ (10.53%) ((Sub:7.55x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹95</span></p>
+                    <p><span>Est Listing:</span><span>95 (0.00%)</span></p>
+                    <p><span>Open:</span><span>8-Oct</span></p>
+                    <p><span>Close:</span><span>10-Oct</span></p>
+                    <p><span>Listing Date:</span><span>15-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="--" data-percentage="0.00" data-price="99"
+                data-status="L@ (6.06%) ((sub:15.17x))">
+                <h2>Khyati Global Ventures BSE SME</h2>
+                <div class="gmp">GMP: ₹--</div>
+                <div class="listing-percentage">0.00%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 0.00%;"></div>
+                </div>
+                <div class="status ema">L@ (6.06%) ((Sub:15.17x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹99</span></p>
+                    <p><span>Est Listing:</span><span>99 (0.00%)</span></p>
+                    <p><span>Open:</span><span>4-Oct</span></p>
+                    <p><span>Close:</span><span>8-Oct</span></p>
+                    <p><span>Listing Date:</span><span>11-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="--" data-percentage="0.00" data-price="20"
+                data-status="L@ (-3.75%) ((sub:32.72x))">
+                <h2>NeoPolitan Pizza and Foods BSE SME</h2>
+                <div class="gmp">GMP: ₹--</div>
+                <div class="listing-percentage">0.00%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 0.00%;"></div>
+                </div>
+                <div class="status ema">L@ (-3.75%) ((Sub:32.72x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹20</span></p>
+                    <p><span>Est Listing:</span><span>20 (0.00%)</span></p>
+                    <p><span>Open:</span><span>30-Sep</span></p>
+                    <p><span>Close:</span><span>4-Oct</span></p>
+                    <p><span>Listing Date:</span><span>9-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="12" data-percentage="7.89" data-price="152"
+                data-status="L@ (-6.58%) ((sub:92.93x))">
+                <h2>Subam Papers BSE SME</h2>
+                <div class="gmp">GMP: ₹12</div>
+                <div class="listing-percentage">7.89%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 7.89%;"></div>
+                </div>
+                <div class="status ema">L@ (-6.58%) ((Sub:92.93x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹152</span></p>
+                    <p><span>Est Listing:</span><span>164 (7.89%)</span></p>
+                    <p><span>Open:</span><span>30-Sep</span></p>
+                    <p><span>Close:</span><span>3-Oct</span></p>
+                    <p><span>Listing Date:</span><span>8-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="5" data-percentage="4.27" data-price="117"
+                data-status="L@ (-6.07%) ((sub:50.09x))">
+                <h2>Paramount Dye Tec NSE SME</h2>
+                <div class="gmp">GMP: ₹5</div>
+                <div class="listing-percentage">4.27%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 4.27%;"></div>
+                </div>
+                <div class="status ema">L@ (-6.07%) ((Sub:50.09x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹117</span></p>
+                    <p><span>Est Listing:</span><span>122 (4.27%)</span></p>
+                    <p><span>Open:</span><span>30-Sep</span></p>
+                    <p><span>Close:</span><span>3-Oct</span></p>
+                    <p><span>Listing Date:</span><span>8-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="25" data-percentage="5.46" data-price="458"
+                data-status="L@ (6.11%) ((sub:34.16x))">
+                <h2>HVAX Technologies NSE SME</h2>
+                <div class="gmp">GMP: ₹25</div>
+                <div class="listing-percentage">5.46%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 5.46%;"></div>
+                </div>
+                <div class="status ema">L@ (6.11%) ((Sub:34.16x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹458</span></p>
+                    <p><span>Est Listing:</span><span>483 (5.46%)</span></p>
+                    <p><span>Open:</span><span>27-Sep</span></p>
+                    <p><span>Close:</span><span>1-Oct</span></p>
+                    <p><span>Listing Date:</span><span>7-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="--" data-percentage="0.00" data-price="65"
+                data-status="L@ (-15.38%) ((sub:5.46x))">
+                <h2>Saj Hotels NSE SME</h2>
+                <div class="gmp">GMP: ₹--</div>
+                <div class="listing-percentage">0.00%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 0.00%;"></div>
+                </div>
+                <div class="status ema">L@ (-15.38%) ((Sub:5.46x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹65</span></p>
+                    <p><span>Est Listing:</span><span>65 (0.00%)</span></p>
+                    <p><span>Open:</span><span>27-Sep</span></p>
+                    <p><span>Close:</span><span>1-Oct</span></p>
+                    <p><span>Listing Date:</span><span>7-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="15" data-percentage="13.89" data-price="108"
+                data-status="L@ (4.63%) ((sub:49.28x))">
+                <h2>Forge Auto International NSE SME</h2>
+                <div class="gmp">GMP: ₹15</div>
+                <div class="listing-percentage">13.89%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 13.89%;"></div>
+                </div>
+                <div class="status ema">L@ (4.63%) ((Sub:49.28x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹108</span></p>
+                    <p><span>Est Listing:</span><span>123 (13.89%)</span></p>
+                    <p><span>Open:</span><span>26-Sep</span></p>
+                    <p><span>Close:</span><span>30-Sep</span></p>
+                    <p><span>Listing Date:</span><span>4-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="172" data-percentage="60.78" data-price="283"
+                data-status="L@ (90.00%) ((sub:122.06x))">
+                <h2>Sahasra Electronics Solutions NSE SME</h2>
+                <div class="gmp">GMP: ₹172</div>
+                <div class="listing-percentage">60.78%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 60.78%;"></div>
+                </div>
+                <div class="status ema">L@ (90.00%) ((Sub:122.06x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹283</span></p>
+                    <p><span>Est Listing:</span><span>455 (60.78%)</span></p>
+                    <p><span>Open:</span><span>26-Sep</span></p>
+                    <p><span>Close:</span><span>30-Sep</span></p>
+                    <p><span>Listing Date:</span><span>4-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="58" data-percentage="34.52" data-price="168"
+                data-status="L@ (15.18%) ((sub:114.5x))">
+                <h2>Diffusion Engineers IPO</h2>
+                <div class="gmp">GMP: ₹58</div>
+                <div class="listing-percentage">34.52%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 34.52%;"></div>
+                </div>
+                <div class="status ema">L@ (15.18%) ((Sub:114.5x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹168</span></p>
+                    <p><span>Est Listing:</span><span>226 (34.52%)</span></p>
+                    <p><span>Open:</span><span>26-Sep</span></p>
+                    <p><span>Close:</span><span>30-Sep</span></p>
+                    <p><span>Listing Date:</span><span>4-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="--" data-percentage="0.00" data-price="105"
+                data-status="L@ (20.00%) ((sub:8.44x))">
+                <h2>Nexxus Petro Industries BSE SME</h2>
+                <div class="gmp">GMP: ₹--</div>
+                <div class="listing-percentage">0.00%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 0.00%;"></div>
+                </div>
+                <div class="status ema">L@ (20.00%) ((Sub:8.44x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹105</span></p>
+                    <p><span>Est Listing:</span><span>105 (0.00%)</span></p>
+                    <p><span>Open:</span><span>26-Sep</span></p>
+                    <p><span>Close:</span><span>30-Sep</span></p>
+                    <p><span>Listing Date:</span><span>4-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="--" data-percentage="0.00" data-price="64"
+                data-status="L@ (31.25%) ((sub:40.93x))">
+                <h2>Divyadhan Recycling Industries NSE SME</h2>
+                <div class="gmp">GMP: ₹--</div>
+                <div class="listing-percentage">0.00%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 0.00%;"></div>
+                </div>
+                <div class="status ema">L@ (31.25%) ((Sub:40.93x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹64</span></p>
+                    <p><span>Est Listing:</span><span>64 (0.00%)</span></p>
+                    <p><span>Open:</span><span>26-Sep</span></p>
+                    <p><span>Close:</span><span>30-Sep</span></p>
+                    <p><span>Listing Date:</span><span>4-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="235" data-percentage="106.82" data-price="220"
+                data-status="L@ (118.18%) ((sub:213.41x))">
+                <h2>KRN Heat Exchanger IPO</h2>
+                <div class="gmp">GMP: ₹235</div>
+                <div class="listing-percentage">106.82%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 106.82%;"></div>
+                </div>
+                <div class="status ema">L@ (118.18%) ((Sub:213.41x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹220</span></p>
+                    <p><span>Est Listing:</span><span>455 (106.82%)</span></p>
+                    <p><span>Open:</span><span>25-Sep</span></p>
+                    <p><span>Close:</span><span>27-Sep</span></p>
+                    <p><span>Listing Date:</span><span>3-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="18" data-percentage="21.95" data-price="82"
+                data-status="L@ (52.44%) ((sub:69.8x))">
+                <h2>TechEra Engineering NSE SME</h2>
+                <div class="gmp">GMP: ₹18</div>
+                <div class="listing-percentage">21.95%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 21.95%;"></div>
+                </div>
+                <div class="status ema">L@ (52.44%) ((Sub:69.8x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹82</span></p>
+                    <p><span>Est Listing:</span><span>100 (21.95%)</span></p>
+                    <p><span>Open:</span><span>25-Sep</span></p>
+                    <p><span>Close:</span><span>27-Sep</span></p>
+                    <p><span>Listing Date:</span><span>3-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="30" data-percentage="68.18" data-price="44"
+                data-status="L@ (36.36%) ((sub:322.19x))">
+                <h2>Thinking Hats Entertainment Solutions NSE SME</h2>
+                <div class="gmp">GMP: ₹30</div>
+                <div class="listing-percentage">68.18%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 68.18%;"></div>
+                </div>
+                <div class="status ema">L@ (36.36%) ((Sub:322.19x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹44</span></p>
+                    <p><span>Est Listing:</span><span>74 (68.18%)</span></p>
+                    <p><span>Open:</span><span>25-Sep</span></p>
+                    <p><span>Close:</span><span>27-Sep</span></p>
+                    <p><span>Listing Date:</span><span>3-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="4" data-percentage="4.60" data-price="87"
+                data-status="L@ (2.30%) ((sub:35.03x))">
+                <h2>Unilex Colours and Chemicals NSE SME</h2>
+                <div class="gmp">GMP: ₹4</div>
+                <div class="listing-percentage">4.60%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 4.60%;"></div>
+                </div>
+                <div class="status ema">L@ (2.30%) ((Sub:35.03x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹87</span></p>
+                    <p><span>Est Listing:</span><span>91 (4.60%)</span></p>
+                    <p><span>Open:</span><span>25-Sep</span></p>
+                    <p><span>Close:</span><span>27-Sep</span></p>
+                    <p><span>Listing Date:</span><span>3-Oct</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="65" data-percentage="43.33" data-price="150"
+                data-status="L@ (20.03%) ((sub:373.86x))">
+                <h2>WOL3D NSE SME</h2>
+                <div class="gmp">GMP: ₹65</div>
+                <div class="listing-percentage">43.33%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 43.33%;"></div>
+                </div>
+                <div class="status ema">L@ (20.03%) ((Sub:373.86x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹150</span></p>
+                    <p><span>Est Listing:</span><span>215 (43.33%)</span></p>
+                    <p><span>Open:</span><span>23-Sep</span></p>
+                    <p><span>Close:</span><span>25-Sep</span></p>
+                    <p><span>Listing Date:</span><span>30-Sep</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="100" data-percentage="45.05" data-price="222"
+                data-status="L@ (40.54%) ((sub:176.06x))">
+                <h2>Rappid Valves</h2>
+                <div class="gmp">GMP: ₹100</div>
+                <div class="listing-percentage">45.05%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 45.05%;"></div>
+                </div>
+                <div class="status ema">L@ (40.54%) ((Sub:176.06x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹222</span></p>
+                    <p><span>Est Listing:</span><span>322 (45.05%)</span></p>
+                    <p><span>Open:</span><span>23-Sep</span></p>
+                    <p><span>Close:</span><span>25-Sep</span></p>
+                    <p><span>Listing Date:</span><span>30-Sep</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="33" data-percentage="27.50" data-price="120"
+                data-status="L@ (20.83%) ((sub:224.05x))">
+                <h2>Manba Finance IPO</h2>
+                <div class="gmp">GMP: ₹33</div>
+                <div class="listing-percentage">27.50%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 27.50%;"></div>
+                </div>
+                <div class="status ema">L@ (20.83%) ((Sub:224.05x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹120</span></p>
+                    <p><span>Est Listing:</span><span>153 (27.50%)</span></p>
+                    <p><span>Open:</span><span>23-Sep</span></p>
+                    <p><span>Close:</span><span>25-Sep</span></p>
+                    <p><span>Listing Date:</span><span>30-Sep</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="2" data-percentage="3.23" data-price="62"
+                data-status="L@ (9.68%) ((sub:8.32x))">
+                <h2>Avi Ansh Textile NSE SME</h2>
+                <div class="gmp">GMP: ₹2</div>
+                <div class="listing-percentage">3.23%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 3.23%;"></div>
+                </div>
+                <div class="status ema">L@ (9.68%) ((Sub:8.32x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹62</span></p>
+                    <p><span>Est Listing:</span><span>64 (3.23%)</span></p>
+                    <p><span>Open:</span><span>20-Sep</span></p>
+                    <p><span>Close:</span><span>24-Sep</span></p>
+                    <p><span>Listing Date:</span><span>27-Sep</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="15" data-percentage="23.44" data-price="64"
+                data-status="L@ (0.00%) ((sub:119.22x))">
+                <h2>Phoenix Overseas NSE SME</h2>
+                <div class="gmp">GMP: ₹15</div>
+                <div class="listing-percentage">23.44%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 23.44%;"></div>
+                </div>
+                <div class="status ema">L@ (0.00%) ((Sub:119.22x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹64</span></p>
+                    <p><span>Est Listing:</span><span>79 (23.44%)</span></p>
+                    <p><span>Open:</span><span>20-Sep</span></p>
+                    <p><span>Close:</span><span>24-Sep</span></p>
+                    <p><span>Listing Date:</span><span>27-Sep</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="20" data-percentage="15.27" data-price="131"
+                data-status="L@ (10.69%) ((sub:97.08x))">
+                <h2>SD Retail NSE SME</h2>
+                <div class="gmp">GMP: ₹20</div>
+                <div class="listing-percentage">15.27%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 15.27%;"></div>
+                </div>
+                <div class="status ema">L@ (10.69%) ((Sub:97.08x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹131</span></p>
+                    <p><span>Est Listing:</span><span>151 (15.27%)</span></p>
+                    <p><span>Open:</span><span>20-Sep</span></p>
+                    <p><span>Close:</span><span>24-Sep</span></p>
+                    <p><span>Listing Date:</span><span>27-Sep</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="7" data-percentage="11.29" data-price="62"
+                data-status="L@ (-27.42%) ((sub:41.82x))">
+                <h2>BikeWo GreenTech NSE SME</h2>
+                <div class="gmp">GMP: ₹7</div>
+                <div class="listing-percentage">11.29%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 11.29%;"></div>
+                </div>
+                <div class="status ema">L@ (-27.42%) ((Sub:41.82x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹62</span></p>
+                    <p><span>Est Listing:</span><span>69 (11.29%)</span></p>
+                    <p><span>Open:</span><span>20-Sep</span></p>
+                    <p><span>Close:</span><span>24-Sep</span></p>
+                    <p><span>Listing Date:</span><span>27-Sep</span></p>
+                </div>
+            </div>
+            <div class="card" data-gmp="--" data-percentage="0.00" data-price="66"
+                data-status="L@ (-31.59%) ((sub:59.92x))">
+                <h2>Kalana Ispat NSE SME</h2>
+                <div class="gmp">GMP: ₹--</div>
+                <div class="listing-percentage">0.00%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 0.00%;"></div>
+                </div>
+                <div class="status ema">L@ (-31.59%) ((Sub:59.92x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹66</span></p>
+                    <p><span>Est Listing:</span><span>66 (0.00%)</span></p>
+                    <p><span>Open:</span><span>19-Sep</span></p>
+                    <p><span>Close:</span><span>23-Sep</span></p>
+                    <p><span>Listing Date:</span><span>26-Sep</span></p>
+                </div>
+            </div>
+            <!-- Placeholder for IPO Cards -->
+            <!-- Card 1 -->
+            <!-- <div class="card" data-gmp="75" data-price="463" data-percentage="16.2" data-status="upcoming">
+                <h2>Afcons Infrastructure IPO</h2>
+                <div class="gmp">GMP: ₹75</div>
+                <div class="listing-percentage">16.2%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 16.2%;"></div>
+                </div>
+                <div class="status upcoming">Upcoming</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹463</span></p>
+                    <p><span>Est Listing:</span><span>₹538 (16.2%)</span></p>
+                    <p><span>Open:</span><span>25-Oct</span></p>
+                    <p><span>Close:</span><span>29-Oct</span></p>
+                    <p><span>Listing Date:</span><span>4-Nov</span></p>
+                </div>
+            </div> -->
+            <!-- Card 2 -->
+            <!-- <div class="card" data-gmp="45" data-price="168" data-percentage="26.79" data-status="open">
+                <h2>Usha Financial Services IPO</h2>
+                <div class="gmp">GMP: ₹45</div>
+                <div class="listing-percentage">26.79%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 26.79%;"></div>
+                </div>
+                <div class="status open">Open</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹168</span></p>
+                    <p><span>Est Listing:</span><span>₹213 (26.79%)</span></p>
+                    <p><span>Open:</span><span>24-Oct</span></p>
+                    <p><span>Close:</span><span>28-Oct</span></p>
+                    <p><span>Listing Date:</span><span>31-Oct</span></p>
+                </div>
+            </div> -->
+            <!-- Card 3 -->
+            <!-- <div class="card" data-gmp="25" data-price="352" data-percentage="7.1" data-status="open">
+                <h2>Godavari Biorefineries IPO</h2>
+                <div class="gmp">GMP: ₹25</div>
+                <div class="listing-percentage">7.1%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 7.1%;"></div>
+                </div>
+                <div class="status open">Open</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹352</span></p>
+                    <p><span>Est Listing:</span><span>₹377 (7.1%)</span></p>
+                    <p><span>Open:</span><span>23-Oct</span></p>
+                    <p><span>Close:</span><span>25-Oct</span></p>
+                    <p><span>Listing Date:</span><span>30-Oct</span></p>
+                </div>
+            </div> -->
+            <!-- Card 4 -->
+            <!-- <div class="card" data-gmp="290" data-price="380" data-percentage="76.32" data-status="closed">
+                <h2>Danish Power NSE SME</h2>
+                <div class="gmp">GMP: ₹290</div>
+                <div class="listing-percentage">76.32%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 76.32%;"></div>
+                </div>
+                <div class="status closed">Closed</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹380</span></p>
+                    <p><span>Est Listing:</span><span>₹670 (76.32%)</span></p>
+                    <p><span>Open:</span><span>22-Oct</span></p>
+                    <p><span>Close:</span><span>24-Oct</span></p>
+                    <p><span>Listing Date:</span><span>29-Oct</span></p>
+                </div>
+            </div> -->
+
+            <div class="card" data-gmp="17" data-percentage="28.81" data-price="59"
+                data-status="[email protected] (40.68%) ((sub:73.88x))">
+                <h2>Paramount Speciality Forgings NSE SME</h2>
+                <div class="gmp">GMP: ₹17</div>
+                <div class="listing-percentage">28.81%</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: 28.81%;"></div>
+                </div>
+                <div class="status ema">[email protected] (40.68%) ((Sub:73.88x))</div>
+                <div class="details">
+                    <p><span>Price:</span><span>₹59</span></p>
+                    <p><span>Est Listing:</span><span>76 (28.81%)</span></p>
+                    <p><span>Open:</span><span>17-Sep</span></p>
+                    <p><span>Close:</span><span>20-Sep</span></p>
+                    <p><span>Listing Date:</span><span>25-Sep</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        © 2024 Premium IPO Dashboard - All rights reserved.
+    </footer>
+    <!-- JavaScript for Smart Functionalities -->
+    <script>
+        let sortOrder = {
+            gmp: 'desc',
+            price: 'desc',
+            percentage: 'desc',
+        };
+
+        // Initialize dark mode from localStorage
+        document.addEventListener("DOMContentLoaded", function () {
+            if (localStorage.getItem('dark-mode') === 'enabled') {
+                document.body.classList.add('dark-mode');
+            }
+        });
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('dark-mode', 'enabled');
+            } else {
+                localStorage.setItem('dark-mode', 'disabled');
+            }
+        }
+
+        function sortCards(criteria) {
+            const cardsContainer = document.getElementById('cards-container');
+            const cards = Array.from(cardsContainer.children);
+            const activeButton = document.getElementById(`${criteria}-btn`);
+
+            // Remove active class from other buttons
+            document.querySelectorAll('.sort-button').forEach(btn => btn.classList.remove('active'));
+
+            // Add active class to the clicked button
+            activeButton.classList.add('active');
+
+            // Toggle arrow direction for sort order
+            const arrow = activeButton.querySelector('.arrow');
+            if (sortOrder[criteria] === 'desc') {
+                arrow.textContent = '↑';
+            } else {
+                arrow.textContent = '↓';
+            }
+
+            // Sort based on criteria
+            cards.sort((a, b) => {
+                let valueA = parseFloat(a.dataset[criteria]);
+                let valueB = parseFloat(b.dataset[criteria]);
+
+                if (sortOrder[criteria] === 'desc') {
+                    return valueB - valueA; // Descending
+                } else {
+                    return valueA - valueB; // Ascending
+                }
+            });
+
+            // Toggle the sorting order for next click
+            sortOrder[criteria] = sortOrder[criteria] === 'desc' ? 'asc' : 'desc';
+
+            // Clear and append sorted cards
+            cardsContainer.innerHTML = '';
+            cards.forEach(card => {
+                card.classList.add('highlight');  // Add flash animation when cards are sorted
+                cardsContainer.appendChild(card);
+            });
+        }
+        function filterCards(status) {
+            const cards = document.querySelectorAll('.card');
+
+            // Remove active state from all filter buttons
+            document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
+
+            // Add active state to clicked button
+            const activeButton = document.getElementById(`${status}-btn`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+
+            cards.forEach(card => {
+                const cardStatus = card.getAttribute('data-status').toLowerCase();
+                const cardTitle = card.querySelector('h2').textContent.toLowerCase();
+
+                // Filter logic for different types of IPOs
+                if (status === 'all') {
+                    card.style.display = 'block';
+                } else if (status === 'open' && cardStatus.includes('open')) {
+                    card.style.display = 'block';
+                } else if (status === 'closed' && cardStatus.includes('close')) {
+                    card.style.display = 'block';
+                } else if (status === 'upcoming' && cardStatus.includes('upcoming')) {
+                    card.style.display = 'block';
+                } else if (status === 'sme' && cardTitle.includes('sme')) {
+                    card.style.display = 'block';
+                } else if (status === 'main' && !cardTitle.includes('sme')) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        function resetFilters() {
+            // Remove active state from all filter and sort buttons
+            document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.sort-button').forEach(btn => btn.classList.remove('active'));
+
+            // Reset to 'all' filter and remove sorting
+            filterCards('all');
+            sortOrder = { gmp: 'desc', price: 'desc', percentage: 'desc' };  // Reset sort order
+
+            // Get the cards container
+            const cardsContainer = document.getElementById('cards-container');
+
+            // Get all the cards and convert to an array
+            const cards = Array.from(document.querySelectorAll('.card'));
+
+            // Sort the cards by their original order in the DOM by using the `index` they appear in the HTML
+            cards.sort((a, b) => {
+                return parseInt(a.getAttribute('data-original-order')) - parseInt(b.getAttribute('data-original-order'));
+            });
+
+            // Clear the container and append the cards in their original order
+            cardsContainer.innerHTML = '';
+            cards.forEach(card => {
+                card.style.display = 'block';  // Show all cards
+                cardsContainer.appendChild(card);  // Append each card in original order
+            });
+        }
+
+        // Call this once when the page loads to set original order
+        document.addEventListener("DOMContentLoaded", function () {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.setAttribute('data-original-order', index);  // Set original order of the cards
+            });
+        });
+
+
+
+        function filterByName() {
+            const searchValue = document.getElementById('search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('.card');
+
+            cards.forEach(card => {
+                const cardTitle = card.querySelector('h2').textContent.toLowerCase();
+                if (cardTitle.includes(searchValue)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
